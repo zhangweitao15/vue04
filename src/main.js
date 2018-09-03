@@ -4,8 +4,19 @@ import Vue from 'vue';
 import App from './App';
 import router from './router';
 
-Vue.config.productionTip = false;
+// 引入插件
+import elementUi from 'element-ui';
 
+// 引入插件的css文件
+import 'element-ui/lib/theme-chalk/index.css';
+
+// 引入全局css文件
+import '@/assets/css/index';
+
+// 注册element-ui插件
+Vue.use(elementUi);
+
+Vue.config.productionTip = false;
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
