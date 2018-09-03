@@ -6,6 +6,6 @@ Vue.use(Router);
 // 路由规则
 export default new Router({
   routes: [
-    {name: 'login', path: '/', component: Login}
+    {name: 'login', path: '/login', component: Login}
   ]
 });
