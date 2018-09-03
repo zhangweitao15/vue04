@@ -41,6 +41,7 @@ export default {
           if (status === 200) {
             this.$message.success(msg);
             sessionStorage.setItem('token', response.data.data.token);
+            this.$router.push('/home');
           } else {
             this.$message.error(msg);
           };
