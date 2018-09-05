@@ -73,14 +73,14 @@
     <!--/表格-->
     <!--分页-->
       <el-pagination
-        class="paging"
+        style="margin-top: 20px"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="pagenum"
-        :page-sizes="[10, 20, 30, 40]"
+        :page-sizes="[2, 3, 4, 5]"
         :page-size="pagesize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="400">
+        :total="total">
       </el-pagination>
     <!--/分页-->
   </el-card>
@@ -98,9 +98,9 @@ export default {
         mg_state: true
       }],
       loading: true,
-      pagenum: 4, // 页码
-      pagesize: 10, //页容量
-      total: 100 //总页数
+      pagenum: 1, // 页码
+      pagesize: 2, //页容量
+      total: 0 //总页数
     };
   },
   created () {
@@ -108,10 +108,17 @@ export default {
   },
   methods: {
     // 分页相关方法
+    // 当页容量发生变化
     handleSizeChange (val) {
+      // 将变换的值付给 data 中的 pagesize
+      this.pagesize = val;
+      this.loadData();
       console.log(`每页 ${val} 条`);
     },
+    // 当页码发生改变
     handleCurrentChange (val) {
+      this.pagenum = val;
+      this.loadData();
       console.log(`当前页: ${val}`);
     },
     // 异步请求列表数据
@@ -119,11 +126,16 @@ export default {
       // 设置token
       const token = sessionStorage.getItem('token');
       this.$http.defaults.headers.common['Authorization'] = token;
-      const reponse = await this.$http.get(`users?pagenum=1&pagesize=3`);
+      const reponse = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}`);
+      // 请求结束
       this.loading = false;
       const {meta: {msg, status}} = reponse.data;
+      // 判断获取的数据是否ok
       if (status === 200) {
+        // 将获取的数据与 data 中的数据绑定
         this.tableData = reponse.data.data.users;
+        // 设置总页数;
+        this.total = reponse.data.data.total;
       } else {
         this.$message.error(msg);
       }
@@ -135,9 +147,6 @@ export default {
 <style>
   .box-card {
     height: 100%;
-  }
-  .paging {
-    margin: 20px 0;
   }
   .inp {
     margin: 15px 0;
