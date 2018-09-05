@@ -23,6 +23,7 @@
 <!-- 表格 -->
     <template>
   <el-table
+    v-loading="loading"
     border
     :data="tableData"
     stripe
@@ -85,7 +86,8 @@ export default {
         email: '',
         mobile: '',
         mg_state: true
-      }]
+      }],
+       loading: true
     };
   },
   created () {
