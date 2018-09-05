@@ -9,6 +9,13 @@ import elementUi from 'element-ui';
 // 引入插件的css文件
 import 'element-ui/lib/theme-chalk/index.css';
 
+// 引入格式化时间模块
+import moment from 'moment';
+// 设置 过滤器 格式化日期格式
+Vue.filter('fmtDate', (value, fmtStr) => {
+  return moment(value).format(fmtStr)
+});
+
 // 引入全局css文件
 import '@/assets/css/index';
 // 导入axios组件

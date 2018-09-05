@@ -10,7 +10,7 @@
             <el-input v-model="formData.username" tyoe="text" ></el-input>
         </el-form-item>
         <el-form-item label="密码">
-            <el-input  v-model="formData.password" type="password"></el-input>
+            <el-input @keyup.enter.native="handleLogin"  v-model="formData.password" type="password"></el-input>
         </el-form-item>
         <el-form-item>
             <el-button @click="handleLogin" class="login-btn" type="primary">登录</el-button>
@@ -41,7 +41,7 @@ export default {
           if (status === 200) {
             this.$message.success(msg);
             sessionStorage.setItem('token', response.data.data.token);
-            this.$router.push('/home');
+            this.$router.push('/');
           } else {
             this.$message.error(msg);
           };
