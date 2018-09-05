@@ -12,11 +12,13 @@
       <el-row class="inp">
         <el-col :span="24">
           <el-input
+            clearable
+            v-model="searchValue"
             style="width: 300px"
             placeholder="请输入内容">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+            <el-button @click="handleSearch" slot="append" icon="el-icon-search"></el-button>
           </el-input>
-          <el-button type="success" plain>添加用户</el-button>
+            <el-button type="success" plain>添加用户</el-button>
         </el-col>
       </el-row>
     <!--/搜索框-->
@@ -65,8 +67,8 @@
             label="操作">
             <template slot-scope="scope">
               <el-button plain size="mini" type="primary" icon="el-icon-edit"></el-button>
+              <el-button @click="handleDelete(scope.row.id)" plain size="mini" type="danger" icon="el-icon-delete"></el-button>
               <el-button plain size="mini" type="success" icon="el-icon-check"></el-button>
-              <el-button plain size="mini" type="danger" icon="el-icon-delete"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -98,15 +100,75 @@ export default {
         mg_state: true
       }],
       loading: true,
-      pagenum: 1, // 页码
-      pagesize: 2, //页容量
-      total: 0 //总页数
+      // 页码
+      pagenum: 1,
+      // 页容量
+      pagesize: 2,
+      // 总页数
+      total: 0,
+      searchValue: ''
     };
   },
   created () {
     this.loadData();
   },
   methods: {
+    // 异步请求列表数据
+    async loadData () {
+      // 设置token
+      const token = sessionStorage.getItem('token');
+      // 将token 添加到请求头中
+      this.$http.defaults.headers.common['Authorization'] = token;
+      // 发送异步请求
+      const reponse = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}&query=${this.searchValue}`);
+      // 请求结束 loading 加载图结束
+      this.loading = false;
+      // 获取返回结果中的 成功或失败的数据
+      const {meta: {msg, status}} = reponse.data;
+      // 判断获取的数据是否ok
+      if (status === 200) {
+        // 将获取的数据与 data 中的数据绑定
+        this.tableData = reponse.data.data.users;
+        // 设置总页数;
+        this.total = reponse.data.data.total;
+      } else {
+        // 当错误的时候 将错误信息显示
+        this.$message.error(msg);
+      }
+    },
+    // 删除功能
+    handleDelete (id) {
+      this.$confirm('您确认删除此用户吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        // 当点击确认按钮的时候
+        // 发送请求
+        const response = await this.$http.delete(`users/${id}`);
+        // 接收返回的 状态 结构
+        const {meta: {status, msg }} = response.data;
+        if (status === 200) {
+          // 删除成功经状态打印
+          this.$message.success(msg);
+          // 如果是最后一页，并且只有一条数据，此时删除数据会有问题
+          if (this.pagenum  > 1 && this.tableData.length === 1) {
+            this.pagenum--;
+          }
+          // 刷新表格
+          this.loadData();
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });          
+      });
+    },
+    // 搜索功能
+    handleSearch () {
+      this.loadData();
+    },
     // 分页相关方法
     // 当页容量发生变化
     handleSizeChange (val) {
@@ -125,10 +187,13 @@ export default {
     async loadData () {
       // 设置token
       const token = sessionStorage.getItem('token');
+      // 将token 添加到请求头中
       this.$http.defaults.headers.common['Authorization'] = token;
-      const reponse = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}`);
-      // 请求结束
+      // 发送异步请求
+      const reponse = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}&query=${this.searchValue}`);
+      // 请求结束 loading 加载图结束
       this.loading = false;
+      // 获取返回结果中的 成功或失败的数据
       const {meta: {msg, status}} = reponse.data;
       // 判断获取的数据是否ok
       if (status === 200) {
@@ -137,6 +202,7 @@ export default {
         // 设置总页数;
         this.total = reponse.data.data.total;
       } else {
+        // 当错误的时候 将错误信息显示
         this.$message.error(msg);
       }
     }
