@@ -69,7 +69,7 @@
             <template slot-scope="scope">
               <el-button @click="handlealter(scope.row)" plain size="mini"  type="primary" icon="el-icon-edit"></el-button>
               <el-button @click="handleDelete(scope.row.id)" plain size="mini" type="danger" icon="el-icon-delete"></el-button>
-              <el-button plain size="mini" type="success" icon="el-icon-check"></el-button>
+              <el-button @click="handleOpenSetRoleDialog(scope.row)" plain size="mini" type="success" icon="el-icon-check"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -139,6 +139,40 @@
         </div>
       </el-dialog>
     <!-- / 弹出框 -->
+    <!-- 分配角色对话框 -->
+      <el-dialog
+        title="分配角色"
+        :visible.sync="setRoleDialogFormVisible"
+        @close="handleClose">
+        <el-form
+          :model="formData"
+          label-width="80px">
+          <el-form-item prop="username" label="用户名" >
+            <el-input v-model="formData.username" auto-complete="off" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="活动区域" prop="">
+          <el-select v-model="currentRoleId" placeholder="请选择">
+            <el-option
+             label="请选择"
+             value="-1">
+            </el-option>
+            <el-option
+             label="请选择1"
+             value="1">
+            </el-option>
+            <el-option
+             label="请选择2"
+             value="2">
+            </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="editUserDialogFormVisible = false">取 消</el-button>
+          <el-button @click="handleEdit" type="primary">确 定</el-button>
+        </div>
+      </el-dialog>
+    <!--/ 分配角色对话框 -->
   </el-card>
 </template>
 
@@ -165,6 +199,10 @@ export default {
       addUserDialogFormVisible: false,
       //控制用户信息弹框显示或隐藏
       editUserDialogFormVisible: false,
+      // 空中分配角色弹窗
+      setRoleDialogFormVisible: false,
+      // 角色分配中的下拉菜单属性
+      currentRoleId: -1,
       // 绑定对话框中表单的数据
       formData: {
         username: '',
@@ -331,9 +369,11 @@ export default {
         this.loadData();
       } else {
         this.$message.error(msg);
-        
-       
       }
+    },
+    handleOpenSetRoleDialog() {
+      // 实现点击显示弹出窗口
+      this.setRoleDialogFormVisible = true;
     }
   }
 };
