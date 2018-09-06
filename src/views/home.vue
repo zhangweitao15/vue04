@@ -41,11 +41,11 @@
               <span>权限管理</span>
             </template>
             <!-- 菜单项 el-menu-item -->
-            <el-menu-item index="/roles">
+            <el-menu-item index="/rights">
               <i class="el-icon-view"></i>
               角色列表
             </el-menu-item>
-            <el-menu-item index="/rights">
+            <el-menu-item index="/roles">
               <i class="el-icon-view"></i>
               权限列表
             </el-menu-item>
