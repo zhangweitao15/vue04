@@ -146,30 +146,29 @@
         @close="handleClose">
         <el-form
           :model="formData"
-          label-width="80px">
-          <el-form-item prop="username" label="用户名" >
-            <el-input v-model="formData.username" auto-complete="off" disabled></el-input>
+          label-width="100px">
+          <el-form-item label="用户名" >
+            {{ formData.username }}
           </el-form-item>
-          <el-form-item label="活动区域" prop="">
-          <el-select v-model="currentRoleId" placeholder="请选择">
-            <el-option
-             label="请选择"
-             value="-1">
-            </el-option>
-            <el-option
-             label="请选择1"
-             value="1">
-            </el-option>
-            <el-option
-             label="请选择2"
-             value="2">
-            </el-option>
+          <el-form-item label="请选择角色" prop="options">
+            <el-select v-model="currentRoleId" placeholder="请选择">
+              <el-option
+              disabled
+              label="请选择"
+              :value="-1">
+              </el-option>
+              <el-option
+                v-for="item in options"
+                :key="item.id"
+                :label="item.roleName"
+                :value="item.id">
+              </el-option>
             </el-select>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="editUserDialogFormVisible = false">取 消</el-button>
-          <el-button @click="handleEdit" type="primary">确 定</el-button>
+          <el-button @click="setRoleDialogFormVisible = false">取 消</el-button>
+          <el-button @click="primary" type="primary">确 定</el-button>
         </div>
       </el-dialog>
     <!--/ 分配角色对话框 -->
@@ -194,12 +193,14 @@ export default {
       pagesize: 2,
       // 总页数
       total: 0,
+      // 绑定下拉菜单数据
+      options: [],
       searchValue: '',
       // 控制对话框的显示或隐藏
       addUserDialogFormVisible: false,
       //控制用户信息弹框显示或隐藏
       editUserDialogFormVisible: false,
-      // 空中分配角色弹窗
+      // 控制分配角色弹窗
       setRoleDialogFormVisible: false,
       // 角色分配中的下拉菜单属性
       currentRoleId: -1,
@@ -371,9 +372,42 @@ export default {
         this.$message.error(msg);
       }
     },
-    handleOpenSetRoleDialog() {
+    async handleOpenSetRoleDialog(user) {
       // 实现点击显示弹出窗口
       this.setRoleDialogFormVisible = true;
+      // 请求角色列表; 
+      const response = await this.$http.get('roles');
+      // 获取通过当前行的信息获取用户名
+      this.formData.username = user.username;
+      // 将返回的结果赋值给 data中绑定的数据options
+      this.options = response.data.data;
+      // 设置当前用户的默认id
+      // 根据用户id 查询当前用户对应的角色id
+      const res = await this.$http.put(`users/${user.id}`);
+      // 将获取到的id 设置给 data中绑定的数据
+      this.currentRoleId = res.data.data.role_id;
+      // 为表单提交记录id
+      this.formData.id = user.id;
+    },
+    // 角色分配页面提交
+    async primary () {
+      // 点击确定向后端发送请求
+      const response = await this.$http.put(`users/${this.formData.id}/role`,{
+        rid: this.currentRoleId
+      });
+      // 接收后端返回的状态 并进行判断
+      const {meta: {msg, status}} = response.data;
+      if (status === 200) {
+        // 成功的时候弹出提示
+      this.$message.success(msg);
+        // 请求发送成功 关闭弹出框
+      this.setRoleDialogFormVisible = false;
+      } else {
+        // 失败的时候
+      this.$message.success(msg)
+      }
+
+      
     }
   }
 };
