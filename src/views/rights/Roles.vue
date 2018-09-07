@@ -1,6 +1,6 @@
 <template>
 	<el-card class="box-roles">
-		15458
+		<my-crumbs level1="权限管理" level2="权限列表" ></my-crumbs>
 	</el-card>
 </template>
 

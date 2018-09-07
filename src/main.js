@@ -16,6 +16,8 @@ import moment from 'moment';
 import '@/assets/css/index';
 // 导入axios组件
 import http from '@/plugins/http';
+// 导入面包屑组件
+import mycrumbs from '@/components/crumbs';
 // 设置 过滤器 格式化日期格式
 Vue.filter('fmtDate', (value, fmtStr) => {
   return moment(value).format(fmtStr);
@@ -24,7 +26,8 @@ Vue.filter('fmtDate', (value, fmtStr) => {
 Vue.use(http);
 // 注册element-ui插件
 Vue.use(elementUi);
-
+// 注册全局面包屑组件
+Vue.component(mycrumbs.name, mycrumbs);
 Vue.config.productionTip = false;
 /* eslint-disable no-new */
 new Vue({

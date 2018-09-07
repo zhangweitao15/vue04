@@ -1,14 +1,7 @@
 <template>
   <el-card class="card">
     <!-- 面包屑 -->
-      <el-breadcrumb
-      style="margin: 15px 0"
-      separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item>活动管理</el-breadcrumb-item>
-        <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-        <el-breadcrumb-item>活动详情</el-breadcrumb-item>
-      </el-breadcrumb>
+      <my-crumbs level1="权限管理" level2="角色列表"></my-crumbs>
     <!--/ 面包屑 -->
     <el-button
     style="margin: 15px 0">添加角色</el-button>
