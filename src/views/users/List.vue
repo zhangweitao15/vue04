@@ -198,7 +198,7 @@ export default {
       searchValue: '',
       // 控制对话框的显示或隐藏
       addUserDialogFormVisible: false,
-      //控制用户信息弹框显示或隐藏
+      // 控制用户信息弹框显示或隐藏
       editUserDialogFormVisible: false,
       // 控制分配角色弹窗
       setRoleDialogFormVisible: false,
@@ -372,10 +372,10 @@ export default {
         this.$message.error(msg);
       }
     },
-    async handleOpenSetRoleDialog(user) {
+    async handleOpenSetRoleDialog (user) {
       // 实现点击显示弹出窗口
       this.setRoleDialogFormVisible = true;
-      // 请求角色列表; 
+      // 请求角色列表;
       const response = await this.$http.get('roles');
       // 获取通过当前行的信息获取用户名
       this.formData.username = user.username;
@@ -392,22 +392,20 @@ export default {
     // 角色分配页面提交
     async primary () {
       // 点击确定向后端发送请求
-      const response = await this.$http.put(`users/${this.formData.id}/role`,{
+      const response = await this.$http.put(`users/${this.formData.id}/role`, {
         rid: this.currentRoleId
       });
       // 接收后端返回的状态 并进行判断
       const {meta: {msg, status}} = response.data;
       if (status === 200) {
         // 成功的时候弹出提示
-      this.$message.success(msg);
+        this.$message.success(msg);
         // 请求发送成功 关闭弹出框
-      this.setRoleDialogFormVisible = false;
+        this.setRoleDialogFormVisible = false;
       } else {
         // 失败的时候
-      this.$message.success(msg)
+        this.$message.success(msg);
       }
-
-      
     }
   }
 };
