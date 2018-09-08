@@ -22,44 +22,23 @@
           :router="true"
           style="height: 100%"
           default-active="0">
-          <el-submenu index="1">
+          <el-submenu 
+            v-for="level1 in menu"
+            :key="level1.id"
+            :index="level1.path">
             <!-- 显示的是父菜单的内容 -->
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>用户管理</span>
+              <span>{{level1.authName}}</span>
             </template>
             <!-- 菜单项 el-menu-item -->
-            <el-menu-item index="/users">
+            <el-menu-item
+              v-for="level2 in level1.children"
+              :key="level2.id"
+              :index="'/' + level2.path">
               <i class="el-icon-view"></i>
-              用户列表
+              {{level2.authName}}
             </el-menu-item>
-          </el-submenu>
-          <el-submenu index="2">
-            <!-- 显示的是父菜单的内容 -->
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>权限管理</span>
-            </template>
-            <!-- 菜单项 el-menu-item -->
-            <el-menu-item index="/rights">
-              <i class="el-icon-view"></i>
-              角色列表
-            </el-menu-item>
-            <el-menu-item index="/roles">
-              <i class="el-icon-view"></i>
-              权限列表
-            </el-menu-item>
-          </el-submenu>
-          <el-submenu index="3">
-            <!-- 显示的是父菜单的内容 -->
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>商品管理</span>
-            </template>
-            <!-- 菜单项 el-menu-item -->
-            <el-menu-item index="3-1">商品列表</el-menu-item>
-            <el-menu-item index="3-2">分类参数</el-menu-item>
-            <el-menu-item index="3-3">商品分类</el-menu-item>
           </el-submenu>
         </el-menu>
       </el-aside>
@@ -82,6 +61,14 @@ export default {
       this.$router.push('/login');
     }
   },
+  data () {
+    return {
+      menu: []
+    };
+  },
+  created () {
+    this.loadMenus()
+  },
   methods: {
     // 退出
     handleLogout () {
@@ -91,6 +78,14 @@ export default {
       this.$message.success('退出成功');
       //
       this.$router.push('/login');
+    },
+    // 获取 左侧菜单权限
+    async loadMenus () {
+      const response = await this.$http.get('menus');
+      const {meta: {msg, status}} = response.data;
+      if (status === 200) {
+        this.menu = response.data.data;
+      }
     }
   }
 };
