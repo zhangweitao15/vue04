@@ -1,7 +1,7 @@
 <template>
   <el-card class="card">
     <!-- 面包屑 -->
-      <my-crumbs level1="权限管理" level2="角色列表"></my-crumbs>
+      <my-crumbs level1="权限管理" level2="角色列表1"></my-crumbs>
     <!--/ 面包屑 -->
     <el-button
     style="margin: 15px 0">添加角色</el-button>
@@ -13,8 +13,45 @@
           :data="tableData"
           style="width: 100%">
           <el-table-column type="expand">
-            <template slot-scope="props">
-             asdasdasd
+            <template slot-scope="scope">
+              <el-row
+                v-for="level1 in scope.row.children"
+                :key="level1.id">
+                <el-col :span="4">
+                  <el-tag closable>
+                    {{level1.authName}}
+                  </el-tag>
+                </el-col>
+                <el-col :span="20">
+                  <!-- 显示二级权限 -->
+                  <el-row 
+                    v-for="level2 in level1.children"
+                    :key="level2.id">
+                    <el-col :span="4">
+                      <el-tag
+                        closable
+                        type="success">
+                        {{level2.authName}}
+                      </el-tag>
+                    </el-col>
+                    <el-col :span="20">
+                      <!-- 显示三级权限 -->
+                      <el-tag
+                        class="level3"
+                        v-for="level3 in level2.children"
+                        :key="level3.id"
+                        closable
+                        type="warning">
+                        {{level3.authName}}
+                      </el-tag>
+                    </el-col>
+                  </el-row>
+                </el-col>
+              </el-row>
+              <!-- 未分配权限 -->
+              <el-row v-if="scope.row.children.length === 0">
+                <el-col :span="24">未分配权限</el-col>
+              </el-row>
             </template>
           </el-table-column>
           <el-table-column
@@ -75,7 +112,12 @@ export default {
 </script>
 
 <style>
+.level3 {
+  margin: 0 0 6px 6px;
+}
 .card {
+  height: 100%;
+  overflow: auto;
   height: 100%;
 }
 </style>

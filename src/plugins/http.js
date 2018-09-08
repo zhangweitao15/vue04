@@ -1,6 +1,6 @@
 // 导入插件
 import axios from 'axios';
-import { Loading } from 'element-ui'
+import {Loading} from 'element-ui';
 const httpHelper = {};
 // 配置vue插件
 httpHelper.install = function (Vue) {
