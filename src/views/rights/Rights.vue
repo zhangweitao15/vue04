@@ -18,7 +18,7 @@
                 v-for="level1 in scope.row.children"
                 :key="level1.id">
                 <el-col :span="4">
-                  <el-tag 
+                  <el-tag
                     closable
                     @close="handleClose(scope.row, level1.id)">
                     {{level1.authName}}
@@ -78,21 +78,31 @@
             <template slot-scope="scope">
               <el-button plain size="mini"  type="primary" icon="el-icon-edit"></el-button>
               <el-button plain size="mini" type="danger" icon="el-icon-delete"></el-button>
-              <el-button @click="handleOpenDialog = true" plain size="mini" type="success" icon="el-icon-check"></el-button>
+              <el-button @click="handleRights(scope.row)" plain size="mini" type="success" icon="el-icon-check"></el-button>
             </template>
           </el-table-column>
         </el-table>
       </template>
     <!--/ 表格 -->
     <!-- 树形控件 -->
-      <el-tree
-        :data="data3"
-        show-checkbox
-        node-key="id"
-        default-expand-all = 'true'
-        :default-expanded-keys="[2, 3]"
-        :default-checked-keys="[5]">
-      </el-tree>
+      <el-dialog
+      title="权限分配"
+      :visible.sync="dialogFormVisible">
+        <el-tree
+          ref="tree"
+          :data="data"
+          show-checkbox
+          default-expand-all
+          node-key="id"
+          :default-checked-keys="checkedKeys"
+          :props="defaultProps">
+        </el-tree>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleSetRights()">确 定</el-button>
+        </div>
+      </el-dialog>
     <!--/ 树形控件 -->
   </el-card>
 </template>
@@ -103,7 +113,17 @@ export default {
     return {
       tableData: [],
       // 控制对话框的显示和隐藏
-      handleOpenDialog: false
+      dialogFormVisible: false,
+      data: [],
+      defaultProps: {
+        // 树上绑定节点的对象
+        label: 'authName',
+        // 对象的子节点绑定的对象
+        children: 'children',
+      },
+      checkedKeys: [],
+      // 记录当前角色id
+      currentRoleId: -1
     };
   },
   created () {
@@ -136,6 +156,60 @@ export default {
         roleId.children = response.data.data;
       } else {
         this.$message.error(msg);
+      }
+    },
+    // 添加角色权限结构
+    async handleRights (role) {
+      // 点击按钮显示弹出框
+      this.dialogFormVisible = true;
+      // 发送异步请求
+      const response = await this.$http.get('rights/tree');
+      this.data = response.data.data;
+      console.log(this.data)
+      // 设置角色所拥有的权限被选中
+      // 当前角色role所拥有的权限id
+      const arr = [];
+      // 遍历一级权限
+      role.children.forEach(level1 => {
+        // 遍历二级权限
+        level1.children.forEach(level2 => {
+          // 遍历三级权限 并将其保存到arr数组中
+          level2.children.forEach(level3 => {
+            arr.push(level3.id)
+          })
+        });
+      });
+      this.checkedKeys = arr;
+      console.log(this.checkedKeys);
+      // 记录当前角色id 
+      this.currentRoleId = role.id;
+    },
+    // 为角色添加权限
+    async handleSetRights () {
+      // 准备发送异步的数据
+      // rids权限id列表，每个id使用,分割
+      // 获取树上选中或半选节点的id
+      const arr1 = this.$refs.tree.getCheckedKeys();
+      const arr2 = this.$refs.tree.getHalfCheckedKeys();
+      // 将两个数组通过解构的方式合并
+      const arr = [...arr1, ...arr2];
+      // 调用数组的join方法 将数组用 , 分隔;
+      const rids = arr.join(',');
+      const response = await this.$http.post(`roles/${this.currentRoleId}/rights`, {
+        rids: rids
+      });
+      // 接收返回的状态,判断并展示
+      const {meta: {status, msg}} = response.data;
+      if (status === 200) {
+        // 弹出提示成功
+        this.$message.success(msg);
+        // 关闭窗口
+        this.dialogFormVisible = false;
+        // 刷新表格
+        this.handleData();
+
+      } else {
+        this.$message.success(msg);
       }
     }
   }
