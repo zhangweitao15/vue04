@@ -18,19 +18,22 @@
                 v-for="level1 in scope.row.children"
                 :key="level1.id">
                 <el-col :span="4">
-                  <el-tag closable>
+                  <el-tag 
+                    closable
+                    @close="handleClose(scope.row, level1.id)">
                     {{level1.authName}}
                   </el-tag>
                 </el-col>
                 <el-col :span="20">
                   <!-- 显示二级权限 -->
-                  <el-row 
+                  <el-row
                     v-for="level2 in level1.children"
                     :key="level2.id">
                     <el-col :span="4">
                       <el-tag
                         closable
-                        type="success">
+                        type="success"
+                        @close="handleClose(scope.row, level2.id)">
                         {{level2.authName}}
                       </el-tag>
                     </el-col>
@@ -41,7 +44,8 @@
                         v-for="level3 in level2.children"
                         :key="level3.id"
                         closable
-                        type="warning">
+                        type="warning"
+                        @close="handleClose(scope.row, level3.id)">
                         {{level3.authName}}
                       </el-tag>
                     </el-col>
@@ -74,12 +78,22 @@
             <template slot-scope="scope">
               <el-button plain size="mini"  type="primary" icon="el-icon-edit"></el-button>
               <el-button plain size="mini" type="danger" icon="el-icon-delete"></el-button>
-              <el-button plain size="mini" type="success" icon="el-icon-check"></el-button>
+              <el-button @click="handleOpenDialog = true" plain size="mini" type="success" icon="el-icon-check"></el-button>
             </template>
           </el-table-column>
         </el-table>
       </template>
     <!--/ 表格 -->
+    <!-- 树形控件 -->
+      <el-tree
+        :data="data3"
+        show-checkbox
+        node-key="id"
+        default-expand-all = 'true'
+        :default-expanded-keys="[2, 3]"
+        :default-checked-keys="[5]">
+      </el-tree>
+    <!--/ 树形控件 -->
   </el-card>
 </template>
 
@@ -87,7 +101,9 @@
 export default {
   data () {
     return {
-      tableData: []
+      tableData: [],
+      // 控制对话框的显示和隐藏
+      handleOpenDialog: false
     };
   },
   created () {
@@ -102,7 +118,22 @@ export default {
       this.tableData = response.data.data;
       const {meta: {msg, status}} = response.data;
       if (status === 200) {
+        // this.$message.success(msg);
+      } else {
+        this.$message.error(msg);
+      }
+    },
+    // 分配用户角色
+    async handleClose (roleId, rightId) {
+      // 发送异步请求 删除对应角色的对应权限
+      const response = await this.$http.delete(`roles/${roleId.id}/rights/${rightId}`);
+      // 接收返回的状态
+      const {meta: {msg, status}} = response.data;
+      // 判断放回的状态弹出提示
+      if (status === 200) {
         this.$message.success(msg);
+        // 重新加载当前角色的权限列表
+        roleId.children = response.data.data;
       } else {
         this.$message.error(msg);
       }
